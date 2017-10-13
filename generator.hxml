@@ -1,11 +1,9 @@
 # This file is generated with vshaxe-build - DO NOT EDIT MANUALLY!
 -cp src
 -D analyzer-optimize
--D js_unflatten
 -lib haxe-hxparser
 -lib hxargs
 -lib hxnodejs
 -lib jstack
--debug
--js bin/cli.js
--main haxeFormatter.CustomCli
+-js bin/generator.js
+-main format.Generator
