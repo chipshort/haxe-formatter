@@ -40,7 +40,7 @@ class CliMacro {
 					trace(type);
 					trace(typePath);
 					
-					var arg = "--" + path.join("-").substr("config".length);
+					var arg = "--" + path.join("-").substr("config-".length);
 					var expr = macro @doc($v{l.doc == null ? "" : l.doc}) [$v{arg}] => function(arg) ${Context.parse(path.join("."), Context.currentPos())} = arg;
 					argExprs.push(expr);
 					trace(expr);
