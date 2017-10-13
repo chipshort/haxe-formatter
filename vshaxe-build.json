@@ -36,7 +36,10 @@
                     "target": "js",
                     "path": "bin/cli.js"
                 },
-                "main": "haxeFormatter.Cli"
+				"defines": [
+					"dump=pretty"
+				],
+                "main": "haxeFormatter.CustomCli"
             }
         },
         {
