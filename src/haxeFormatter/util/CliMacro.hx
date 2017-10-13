@@ -1,4 +1,7 @@
 package haxeFormatter.util;
+
+import format.FormatterFile;
+import format.FormatterFile.Category;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -15,38 +18,49 @@ using Lambda;
 class CliMacro {
 	
 	macro public static function getArgs() : Expr {
-		var configType = Context.follow(Context.getType("haxeFormatter.Config"));
+		var leaves = getOptions();
+		var argExprs = new Array<Expr>();
 		
-		configType.match(TAnonymous(fields));
-		switch (configType) {
+		
+		for (l in leaves) {
+			var path = l.toPath();
+			
+			var arg = "--" + path.join("-").substr("config-".length);
+			var expr = macro @doc($v{l.doc == null ? "" : l.doc}) [$v{arg}] => function(arg) ${Context.parse(path.join("."), Context.currentPos())} = arg;
+			argExprs.push(expr);
+		}
+		
+		return haxeFormatter.util.ArgsHelper.generate(macro $a{argExprs});
+		
+		return macro {};
+	}
+	
+	#if macro
+	
+	static function getOptions() : Array<FieldTree> {
+		var configType = Context.follow(Context.getType("haxeFormatter.Config"));
+		var tree = getFieldTree(configType, "config");
+		var leaves = tree.getAllSubFields().filter(function (f) return f.isLeaf());
+		
+		return leaves;
+	}
+	
+	static function getFieldTree(type : Type, name : String) : FieldTree {
+		var tree = new FieldTree(null, "config", type);
+		
+		switch (type) {
 			case TAnonymous(type):
-				var access = "config.";
-				
 				var t = type.get();
-				var tree = new FieldTree(null, "config", null);
-				
 				for (field in t.fields) {
 					tree.addSubField(field);
 				}
-				
-				var argExprs = new Array<Expr>();
-				
-				var leaves = tree.getAllSubFields().filter(function (f) return f.isLeaf());
-				for (l in leaves) {
-					var path = l.toPath();
-					
-					var arg = "--" + path.join("-").substr("config-".length);
-					var expr = macro @doc($v{l.doc == null ? "" : l.doc}) [$v{arg}] => function(arg) ${Context.parse(path.join("."), Context.currentPos())} = arg;
-					argExprs.push(expr);
-				}
-				
-				return haxeFormatter.util.ArgsHelper.generate(macro $a{argExprs});
 			default:
-				throw "haxeFormatter.Config should be an anonymous structure";
+				Context.error("type should be TAnonymous", Context.currentPos());
 		}
 		
-		return macro {};
-	}	
+		return tree;
+	}
+	#end
 }
 
 #if macro
@@ -56,8 +70,8 @@ class FieldTree {
 	public var subFields = new Array<FieldTree>();
 	public var parent : FieldTree;
 	public var name : String;
-	public var type : Type;
 	public var doc : String;
+	public var type : Type;
 	
 	public function new(p : FieldTree, n : String, t : Type) {
 		parent = p;
