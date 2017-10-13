@@ -34,24 +34,16 @@ class CliMacro {
 				var leaves = tree.getAllSubFields().filter(function (f) return f.isLeaf());
 				for (l in leaves) {
 					var path = l.toPath();
-					var type = l.type;
-					
-					var typePath = TypeTools.toComplexType(type);
-					trace(type);
-					trace(typePath);
 					
 					var arg = "--" + path.join("-").substr("config-".length);
 					var expr = macro @doc($v{l.doc == null ? "" : l.doc}) [$v{arg}] => function(arg) ${Context.parse(path.join("."), Context.currentPos())} = arg;
 					argExprs.push(expr);
-					trace(expr);
 				}
 				
 				return haxeFormatter.util.ArgsHelper.generate(macro $a{argExprs});
 			default:
 				throw "haxeFormatter.Config should be an anonymous structure";
 		}
-		
-		trace(configType);
 		
 		return macro {};
 	}	

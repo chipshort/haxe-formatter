@@ -32,9 +32,6 @@ class CustomCli
 			braces: {newlineBeforeOpening: {}}
 		}
 		
-		//var map : Map<Array<String>, Dynamic> = CliMacro.getArgs();
-		
-		//hxargs.Args.generate(CliMacro.getArgs());
         var args = Sys.args();
         var paths = [];
 		
